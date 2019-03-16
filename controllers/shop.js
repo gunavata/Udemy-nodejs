@@ -74,12 +74,12 @@ exports.postCart = (req, res, next) => {
 
 exports.postCartDeleteProduct = (req, res, next) => {
     console.log('Post delete cart page')
-
     const prodId = req.body.productId;
-    Product.deleteById(prodId)
+    req.user
+    .deleteItemFromCart(prodId)
         .then(() => {
             console.log("Destoryed Product!")
-            res.redirect('/admin/products')
+            res.redirect('/cart')
         })
         .catch(err => {
             console.log(err)
@@ -88,27 +88,8 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
     console.log('Post Order Page!')
-    let fetchedCart;
     req.user
-        .getCart()
-        .then(cart => {
-            fetchedCart = cart;
-            return cart.getProducts()
-        })
-        .then(products => {
-            return req.user
-                .createOrder()
-                .then(order => {
-                    return order.addProducts(products.map(product => {
-                        product.orderItem = { quantity: product.cartItem.quantity }
-                        return product;
-                    }));
-                })
-                .catch(err => console.log(err))
-        })
-        .then(result => {
-            return fetchedCart.setProducts(null);
-        })
+        .addOrder()
         .then(result => {
             res.redirect('/orders');
         })
@@ -118,7 +99,7 @@ exports.postOrder = (req, res, next) => {
 exports.getOrders = (req, res, next) => {
     console.log('Orders page!');
     req.user
-        .getOrders({ include: ['products'] })
+        .getOrders()
         .then(orders => {
             res.render("shop/orders", {
                 pageTitle: "Your Orders!",

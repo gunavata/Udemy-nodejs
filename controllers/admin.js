@@ -2,6 +2,9 @@ const Product = require("../models/product");
 
 exports.getAddProduct = (req, res, next) => {
     console.log('Add Product page!');
+    if (!req.session.isLoggedIn) {
+        return res.redirect('/login');
+    }
     res.render("admin/edit-product", {
         pageTitle: "Add Product!",
         path: "/admin/add-product",
@@ -86,8 +89,8 @@ exports.getProducts = (req, res, next) => {
     console.log('Admin Product page!');
     // Product.findAll()
     Product.find()
-    // .select('title price -_id')
-    // .populate('userId', 'name')
+        // .select('title price -_id')
+        // .populate('userId', 'name')
         .then(products => {
             console.log(products)
             res.render("admin/products", {

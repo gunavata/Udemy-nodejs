@@ -1,3 +1,6 @@
+const fs = require('fs')
+const path = require('path')
+
 const Product = require("../models/product");
 const Order = require('../models/order')
 
@@ -114,7 +117,12 @@ exports.postOrder = (req, res, next) => {
         .execPopulate()
         .then(user => {
             const products = user.cart.items.map(i => {
-                return { quantity: i.quantity, product: { ...i.productId._doc } }
+                return {
+                    quantity: i.quantity,
+                    product: {
+                        ...i.productId._doc
+                    }
+                }
             })
             const order = new Order({
                 user: {
@@ -138,7 +146,9 @@ exports.postOrder = (req, res, next) => {
 
 exports.getOrders = (req, res, next) => {
     console.log('Orders page!');
-    Order.find({ "user.userId": req.user._id })
+    Order.find({
+            "user.userId": req.user._id
+        })
         .then(orders => {
             res.render("shop/orders", {
                 pageTitle: "Your Orders!",
@@ -151,4 +161,29 @@ exports.getOrders = (req, res, next) => {
             error.httpStatusCode = 500;
             return next(error);
         })
+}
+
+exports.getInvoice = (req, res, next) => {
+    const orderId = req.params.orderId;
+    Order.findById(orderId)
+        .then(order => {
+            if (!order) {
+                return next(new Error('No order found!'))
+            }
+            if (order.user.userId.toString() !== req.user._id.toString()) {
+                return next(new Error('Unauthorized'))
+            }
+            const invoiceName = 'invoice-' + orderId + '.pdf';
+            const invoicePath = path.join('data', 'invoices', invoiceName);
+            fs.readFile(invoicePath, (err, data) => {
+                if (err) {
+                    return next(err);
+                }
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"')
+                res.send(data)
+            })
+        })
+        .catch(err => next(err))
+
 }

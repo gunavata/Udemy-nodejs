@@ -26,7 +26,7 @@ const fileStorage = multer.diskStorage({
         cb(null, 'images')
     },
     filename: (req, file, cb) => {
-        cb(null, new Date().toISOString() + '-' + file.originalname);
+        cb(null, new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname);
     }
 });
 
@@ -37,7 +37,6 @@ const fileFilter = (req, file, cb) => {
         cb(null, false);
     }
 }
-console.log('passed file filter!')
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -60,7 +59,6 @@ app.use(
         store: store
     }))
 
-    console.log('passed multer and session creation')
 app.use(csrfProtection);
 app.use(flash());
 
@@ -87,7 +85,6 @@ app.use((req, res, next) => {
         })
 })
 
-console.log('passed user creation, going to routes')
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);

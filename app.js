@@ -10,6 +10,8 @@ const flash = require('connect-flash')
 const multer = require('multer')
 
 const errorController = require('./controllers/error.js');
+const shopController = require("./controllers/shop")
+const isauth = require('./middleware/is-auth')
 const User = require('./models/user');
 
 const MONGODB_URI = 'mongodb+srv://pahtfinder:Q0GiMNn9yRBiZHiJ@thebowwowers-bl6ui.gcp.mongodb.net/shop';
@@ -59,12 +61,10 @@ app.use(
         store: store
     }))
 
-app.use(csrfProtection);
 app.use(flash());
 
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isLoggedIn;
-    res.locals.csrfToken = req.csrfToken();
     next();
 })
 
@@ -83,6 +83,14 @@ app.use((req, res, next) => {
         .catch(err => {
             throw new Error(err);
         })
+})
+
+app.post('/create-order', isauth, shopController.postOrder);
+
+app.use(csrfProtection);
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken();
+    next();
 })
 
 app.use('/admin', adminRoutes);

@@ -1,0 +1,8 @@
+{
+    "env": {
+        "MONGO_USER": "pahtfinder",
+        "MONGO_PASSWORD": "Q0GiMNn9yRBiZHiJ",
+        "MONGO_DEFAULT_DATABASE": "shop",
+        "STRIPE_KEY": "sk_test_hFK1ba4OMMfBSWJsn9smRRup00tVyjsMka"
+    }
+}

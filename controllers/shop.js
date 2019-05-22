@@ -10,7 +10,7 @@ const stripe = require("stripe")(process.env.STRIPE_KEY);
 const Product = require("../models/product");
 const Order = require('../models/order')
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 4;
 
 exports.getIndex = (req, res, next) => {
     console.log('Index page!');
@@ -99,6 +99,7 @@ exports.getCart = (req, res, next) => {
         .execPopulate()
         .then(user => {
             const products = user.cart.items;
+            console.log(products);
             res.render("shop/cart", {
                 pageTitle: "Your Cart!",
                 path: "/cart",
